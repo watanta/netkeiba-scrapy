@@ -67,7 +67,7 @@ def put_race_result_to_sqlite(race_result):
 
     """
 
-    db_name = 'race_result.db'
+    db_name = 'race.db'
 
     create_query = ''
     for key in race_result:
