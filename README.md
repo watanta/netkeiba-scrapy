@@ -27,3 +27,8 @@ git clone 【これ】
 
 pipenv install
 
+## Tips
+splite3のデータベースが作られる。データベースの確認は[ブラウザ](https://sqlitebrowser.org/)使うのがおすすめです。
+
+## ToDo
+- [予想](https://race.netkeiba.com/?pid=yoso&id=c201905030401)とか[掲示板](https://race.netkeiba.com/?pid=race_board&id=201905030401)とかもクローラとスクレイパー書く。
