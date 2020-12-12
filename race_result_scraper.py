@@ -5,6 +5,7 @@ import pathlib
 import glob
 import re
 import pprint
+import datetime
 
 def scrape_from_page(html, filename):
     """
@@ -46,6 +47,8 @@ def scrape_from_page(html, filename):
                 'reward': result_table_row.xpath('diary_snap_cut[3]/td[2]')[0].text
 
             }
+
+
 
             put_race_result_to_sqlite(race_result)
 
@@ -115,7 +118,7 @@ def put_race_result_to_sqlite(race_result):
 
 if __name__ == '__main__':
 
-    path_to_htmldir = 'netkeiba/netkeiba/race_html/'
+    path_to_htmldir = 'netkeiba/netkeiba/spiders/race_html/'
 
     path_iter = pathlib.Path(path_to_htmldir).iterdir()
 

@@ -9,6 +9,7 @@ verify_ssl = true
 scrapy = "*"
 request = "*"
 requests = "*"
+zope = "*"
 
 [requires]
 python_version = "3.6"
