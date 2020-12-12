@@ -48,9 +48,12 @@ def scrape_from_page(html, filename):
 
             }
 
-
+            race_result["race_name"] = html.xpath('//p[@class="smalltxt"]')[0].text
+            ja_date = race_result["race_name"][:race_result["race_name"].find("日")+1]
+            race_result["race_date"] = datetime.datetime.strptime(ja_date, '%Y年%m月%d日').strftime('%Y/%m/%d')
 
             put_race_result_to_sqlite(race_result)
+
 
         except:
             print('scraping fail!')
