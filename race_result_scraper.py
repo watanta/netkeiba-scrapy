@@ -52,7 +52,7 @@ def scrape_from_page(html, filename):
             ja_date = race_result["race_name"][:race_result["race_name"].find("日")+1]
             race_result["race_date"] = datetime.datetime.strptime(ja_date, '%Y年%m月%d日').strftime('%Y/%m/%d')
 
-            put_race_result_to_sqlite(race_result)
+            put_to_sqlite(race_result, "race")
 
 
         except:
@@ -60,7 +60,7 @@ def scrape_from_page(html, filename):
 
 
 
-def put_race_result_to_sqlite(race_result):
+def put_to_sqlite(race_result, table_name):
     """
     sqlite3にデータを入れる
 
@@ -73,7 +73,7 @@ def put_race_result_to_sqlite(race_result):
 
     """
 
-    db_name = 'race.db'
+    db_name = table_name + ".db"
 
     create_query = ''
     for key in race_result:
@@ -82,9 +82,7 @@ def put_race_result_to_sqlite(race_result):
 
     create_query = create_query[:-1]
 
-    create_query = 'create table race_result ' + '(' + create_query + ')'
-
-    # print(create_query)
+    create_query = 'create table' + table_name + '(' + create_query + ')'
 
     conn = sqlite3.connect(db_name)
 
@@ -95,7 +93,7 @@ def put_race_result_to_sqlite(race_result):
         c.execute(create_query)
         print(db_name, 'is created!')
     except:
-        # print(db_name, 'is already exits!')
+        print(db_name, 'is already exits!')
         pass
 
     put_query = ''

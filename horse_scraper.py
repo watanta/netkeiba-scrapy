@@ -33,7 +33,7 @@ def scrape_from_page(html, filename):
         ja_date = tanshou_payback["race_name"][:tanshou_payback["race_name"].find("日")+1]
         tanshou_payback["race_date"] = datetime.datetime.strptime(ja_date, '%Y年%m月%d日').strftime('%Y/%m/%d')
 
-        put_to_sqlite(tanshou_payback, "payback")
+        put_to_sqlite(tanshou_payback, "horse")
 
     except:
         print('scraping fail!')
@@ -53,7 +53,7 @@ def put_to_sqlite(race_result, table_name):
 
     """
 
-    db_name = table_name + ".py"
+    db_name = table_name + ".db"
 
     create_query = ''
     for key in race_result:
@@ -95,7 +95,7 @@ def put_to_sqlite(race_result, table_name):
 
 if __name__ == '__main__':
 
-    path_to_htmldir = 'netkeiba/netkeiba/spiders/race_html/'
+    path_to_htmldir = 'netkeiba/netkeiba/spiders/horse_html/'
 
     path_iter = pathlib.Path(path_to_htmldir).iterdir()
 
