@@ -102,7 +102,7 @@ def put_to_sqlite(race_result, table_name):
 
     put_query = put_query[:-1] #末尾の','とりのぞく
 
-    put_query = "INSERT INTO race_result VALUES " + "(" + put_query + ")"
+    put_query = "INSERT INTO " + table_name + " VALUES " + "(" + put_query + ")"
 
 
     c.execute(put_query)

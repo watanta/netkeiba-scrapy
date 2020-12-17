@@ -6,6 +6,7 @@ import glob
 import re
 import pprint
 import datetime
+import re
 
 def scrape_from_page(html, filename):
     """
@@ -16,27 +17,43 @@ def scrape_from_page(html, filename):
     print('scraping', filename)
 
     # !!!xpathにtbodyふくむとうまくいかない　!!!
-    tanshou_data = html.xpath('//th[@class="tan"]/following-sibling::td')
+    result_table_rows = html.xpath('//*[@id="contents"]/div[5]/div/table//tr[not(contains(@align, "center"))]')
 
-    try:
+    for result_table_row in result_table_rows:
 
-        tanshou_payback = {
-            'race_id' : filename,
-            'umaban': tanshou_data[0].text,
-            'tanshou_payback': tanshou_data[1].text
-        
+        try:
 
-        }
+            race_href = result_table_row.xpath("td[5]/a/@href")[0]
+            jokey_href = result_table_row.xpath("td[13]/a/@href")[0]
 
-        tanshou_payback["race_name"] = html.xpath('//p[@class="smalltxt"]')[0].text
-        
-        ja_date = tanshou_payback["race_name"][:tanshou_payback["race_name"].find("日")+1]
-        tanshou_payback["race_date"] = datetime.datetime.strptime(ja_date, '%Y年%m月%d日').strftime('%Y/%m/%d')
+            horse_result = {
+                'horse_id' : filename,
+                "horse_name": html.xpath('//*[@id="db_main_box"]/div[1]/div[1]/div[1]/h1')[0].text,
+                'sell_price': html.xpath('//*[@id="db_main_box"]/div[2]/div/div[2]/table//td')[5].text,
+                'birth_date': html.xpath('//*[@id="db_main_box"]/div[2]/div/div[2]/table//tr[1]/td')[0].text,
+                "race_date": result_table_row.xpath("td[1]/a")[0].text,
+                "race_id": re.sub("\\D", "", race_href),
+                "horse_num": result_table_row.xpath("td[7]")[0].text,
+                "wakuban": result_table_row.xpath("td[8]")[0].text,
+                "umaban": result_table_row.xpath("td[9]")[0].text,
+                "odds": result_table_row.xpath("td[10]")[0].text,
+                "popularity": result_table_row.xpath("td[11]")[0].text,
+                "finish_order": result_table_row.xpath("td[12]")[0].text,
+                "jokey_id": re.sub("\\D", "", jokey_href),
+                "weight": result_table_row.xpath("td[14]")[0].text,
+                "distance": result_table_row.xpath("td[15]")[0].text,
+                "field_condition": result_table_row.xpath("td[16]")[0].text,
+                "finish_time": result_table_row.xpath("td[18]")[0].text,
+                "horse_weight": result_table_row.xpath("td[24]")[0].text,
 
-        put_to_sqlite(tanshou_payback, "horse")
+            
 
-    except:
-        print('scraping fail!')
+            }
+
+            put_to_sqlite(horse_result, "horse")
+
+        except:
+            print('scraping fail!')
 
 
 
@@ -73,7 +90,7 @@ def put_to_sqlite(race_result, table_name):
         c.execute(create_query)
         print(db_name, 'is created!')
     except:
-        print(db_name, 'is already exits!')
+        #print(db_name, 'is already exits!')
         pass
 
     put_query = ''
@@ -82,7 +99,7 @@ def put_to_sqlite(race_result, table_name):
 
     put_query = put_query[:-1] #末尾の','とりのぞく
 
-    put_query = "INSERT INTO payback VALUES " + "(" + put_query + ")"
+    put_query = "INSERT INTO "+ table_name +" VALUES " + "(" + put_query + ")"
 
 
     c.execute(put_query)
