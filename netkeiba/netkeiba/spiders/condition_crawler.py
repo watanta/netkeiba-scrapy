@@ -36,7 +36,7 @@ class ConditionCrawlerSpider(scrapy.Spider):
     def parse(self, response):
 
 
-        p_temp = pathlib.Path('/root/opt/netkeiba-scrapy/netkeiba/netkeiba/spiders/race_html')
+        p_temp = pathlib.Path('/opt/netkeiba-scrapy/netkeiba/netkeiba/spiders/race_html')
         str_p_list = [str(x)[-12:] for x in list(p_temp.iterdir())]
         str_p_df = pd.DataFrame({"date":str_p_list})
         # 調子分析は最古が20180304
