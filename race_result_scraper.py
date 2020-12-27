@@ -52,7 +52,8 @@ def scrape_from_page(html, filename):
         ja_date = race_result["race_name"][:race_result["race_name"].find("日")+1]
         race_result["race_date"] = datetime.datetime.strptime(ja_date, '%Y年%m月%d日').strftime('%Y/%m/%d')
 
-        put_to_sqlite(race_result, "race")
+        unique_key = ["race_id", "horse_id"]
+        put_to_sqlite(race_result, "race", unique_key)
 
 
         # except:
@@ -60,7 +61,7 @@ def scrape_from_page(html, filename):
 
 
 
-def put_to_sqlite(race_result, table_name):
+def put_to_sqlite(race_result, table_name, unique_key):
     """
     sqlite3にデータを入れる
 
@@ -79,6 +80,9 @@ def put_to_sqlite(race_result, table_name):
     for key in race_result:
         row = '"' + key + '"' + ' varchar(30),'
         create_query = create_query + row
+
+    row = 'unique(' + ", ".join(unique_key) + '),'
+    create_query = create_query + row
 
     create_query = create_query[:-1]
 
@@ -102,7 +106,7 @@ def put_to_sqlite(race_result, table_name):
 
     put_query = put_query[:-1] #末尾の','とりのぞく
 
-    put_query = "INSERT INTO " + table_name + " VALUES " + "(" + put_query + ")"
+    put_query = "INSERT OR IGNORE INTO "+ table_name +" VALUES " + "(" + put_query + ")"
 
 
     c.execute(put_query)

@@ -18,29 +18,30 @@ def scrape_from_page(html, filename):
     # !!!xpathにtbodyふくむとうまくいかない　!!!
     tanshou_data = html.xpath('//th[@class="tan"]/following-sibling::td')
 
-    try:
+    # try:
 
-        tanshou_payback = {
-            'race_id' : filename,
-            'umaban': tanshou_data[0].text,
-            'tanshou_payback': tanshou_data[1].text
-        
+    tanshou_payback = {
+        'race_id' : filename,
+        'umaban': tanshou_data[0].text,
+        'tanshou_payback': tanshou_data[1].text
+    
 
-        }
+    }
 
-        tanshou_payback["race_name"] = html.xpath('//p[@class="smalltxt"]')[0].text
-        
-        ja_date = tanshou_payback["race_name"][:tanshou_payback["race_name"].find("日")+1]
-        tanshou_payback["race_date"] = datetime.datetime.strptime(ja_date, '%Y年%m月%d日').strftime('%Y/%m/%d')
+    tanshou_payback["race_name"] = html.xpath('//p[@class="smalltxt"]')[0].text
+    
+    ja_date = tanshou_payback["race_name"][:tanshou_payback["race_name"].find("日")+1]
+    tanshou_payback["race_date"] = datetime.datetime.strptime(ja_date, '%Y年%m月%d日').strftime('%Y/%m/%d')
 
-        put_to_sqlite(tanshou_payback, "payback")
+    unique_key = ["race_id"]
+    put_to_sqlite(tanshou_payback, "payback", unique_key)
 
-    except:
-        print('scraping fail!')
+    # except:
+    #     print('scraping fail!')
 
 
 
-def put_to_sqlite(race_result, table_name):
+def put_to_sqlite(race_result, table_name, unique_key):
     """
     sqlite3にデータを入れる
 
@@ -53,12 +54,15 @@ def put_to_sqlite(race_result, table_name):
 
     """
 
-    db_name = table_name + ".py"
+    db_name = table_name + ".db"
 
     create_query = ''
     for key in race_result:
         row = '"' + key + '"' + ' varchar(30),'
         create_query = create_query + row
+
+    row = 'unique(' + ", ".join(unique_key) + '),'
+    create_query = create_query + row
 
     create_query = create_query[:-1]
 
@@ -73,7 +77,7 @@ def put_to_sqlite(race_result, table_name):
         c.execute(create_query)
         print(db_name, 'is created!')
     except:
-        print(db_name, 'is already exits!')
+        #print(db_name, 'is already exits!')
         pass
 
     put_query = ''
@@ -82,7 +86,7 @@ def put_to_sqlite(race_result, table_name):
 
     put_query = put_query[:-1] #末尾の','とりのぞく
 
-    put_query = "INSERT INTO " + table_name + " VALUES " + "(" + put_query + ")"
+    put_query = "INSERT OR IGNORE INTO "+ table_name +" VALUES " + "(" + put_query + ")"
 
 
     c.execute(put_query)
