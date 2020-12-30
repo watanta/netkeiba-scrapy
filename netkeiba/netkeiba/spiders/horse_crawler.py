@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
+# でレースに出たことのあるhorse_id一覧をとってから使う
 import scrapy
 import pathlib
+import pandas as pd
 
 
 class HorseCrawlerSpider(scrapy.Spider):
@@ -8,6 +10,8 @@ class HorseCrawlerSpider(scrapy.Spider):
     allowed_domains = ['db.netkeiba.com']
     start_urls = ['http://db.netkeiba.com/?pid=race_top']
     base_url = "https://db.netkeiba.com"
+    # この年以降生まれの馬だけクロールする
+    date_th = "2010"
 
     def write_html(self, response, url):
         """
@@ -35,50 +39,16 @@ class HorseCrawlerSpider(scrapy.Spider):
 
     def parse(self, response):
 
-
-        race_list = response.xpath('//td[contains(@class,"sat") or contains(@class,"sun") or contains(@class,"selected")]/a/@href').extract()
-
-        race_list = [self.base_url + x for x in race_list]
-
+        horse_id_df = pd.read_csv("/opt/netkeiba-scrapy/all_horse.csv")
+        horse_id_df = horse_id_df.loc[(horse_id_df["columns"] > self.date_th + "000000"), :]
+        horse_id_list = horse_id_df["columns"].values.tolist()
+        horse_url_list = [self.base_url + "/horse/" + x for x in horse_id_list]
 
         #カレンダーから各日に開催されたレースの一覧へ
-        for race_url in race_list:
-            if race_url is not None:
-                request = scrapy.Request(url=race_url, callback=self.racelist_parse)
-                yield request
-
-        #カレンダーの前の月へ
-        prev_month_url = response.xpath('//li[@class="rev"]/a[2]/@href').get()
-        if prev_month_url is not None:
-            prev_month_url = self.base_url + prev_month_url
-            request = scrapy.Request(url=prev_month_url, callback=self.parse)
-
-            yield request
-
-    def racelist_parse(self, response):
-
-
-        race_url_list = response.xpath('//dl[@class="race_top_data_info fc"]/dd/a/@href').extract()
-        race_url_list = [self.base_url + x for x in race_url_list]
-
-        #各レースページヘ
-        for race_url in race_url_list:
-            if race_url is not None:
-                request = scrapy.Request(url=race_url, callback=self.race_parse)
-                yield request
-
-
-    def race_parse(self, response):
-
-        # 各競走馬のページへ飛ぶ
-        race_id = response.url[29:-1]
-        horse_list = response.xpath('//*[@id="umalink_'+ race_id +'"]/@href').extract()
-        horse_url_list = ["https://db.netkeiba.com" + x for x in horse_list]
         for horse_url in horse_url_list:
             if horse_url is not None:
                 request = scrapy.Request(url=horse_url, callback=self.horse_parse)
                 yield request
-
 
     def horse_parse(self, response):
         
