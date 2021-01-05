@@ -2,5 +2,6 @@ race_html/
 horse_html/
 condition_html/
 httpcache/
+__pychache__/
 
 *.db
