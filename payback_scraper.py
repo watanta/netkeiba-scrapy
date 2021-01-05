@@ -18,26 +18,26 @@ def scrape_from_page(html, filename):
     # !!!xpathにtbodyふくむとうまくいかない　!!!
     tanshou_data = html.xpath('//th[@class="tan"]/following-sibling::td')
 
-    # try:
+    try:
 
-    tanshou_payback = {
-        'race_id' : filename,
-        'umaban': tanshou_data[0].text,
-        'tanshou_payback': tanshou_data[1].text
-    
+        tanshou_payback = {
+            'race_id' : filename,
+            'umaban': tanshou_data[0].text,
+            'tanshou_payback': tanshou_data[1].text
+        
 
-    }
+        }
 
-    tanshou_payback["race_name"] = html.xpath('//p[@class="smalltxt"]')[0].text
-    
-    ja_date = tanshou_payback["race_name"][:tanshou_payback["race_name"].find("日")+1]
-    tanshou_payback["race_date"] = datetime.datetime.strptime(ja_date, '%Y年%m月%d日').strftime('%Y/%m/%d')
+        tanshou_payback["race_name"] = html.xpath('//p[@class="smalltxt"]')[0].text
+        
+        ja_date = tanshou_payback["race_name"][:tanshou_payback["race_name"].find("日")+1]
+        tanshou_payback["race_date"] = datetime.datetime.strptime(ja_date, '%Y年%m月%d日').strftime('%Y-%m-%d')
 
-    unique_key = ["race_id"]
-    put_to_sqlite(tanshou_payback, "payback", unique_key)
+        unique_key = ["race_id"]
+        put_to_sqlite(tanshou_payback, "payback", unique_key)
 
-    # except:
-    #     print('scraping fail!')
+    except:
+        print('scraping fail!')
 
 
 
