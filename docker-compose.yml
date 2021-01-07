@@ -1,10 +1,24 @@
 version: '3'
 services:
-  python_scrapy:
+  splash:
+    restart: always
+    image: scrapinghub/splash
+    container_name: mysplash
+    ports:
+      - "5023:5023"
+      - "8050:8050"
+      - "8051:8051"
+  jenkins:
     restart: always
     build: .
-    container_name: 'python_scrapy'
-    working_dir: '/root/'
+    container_name: 'python_jenkins'
+    # working_dir: '/root/'
     tty: true
     volumes:
-      - /home/ec2-user/work:/root/opt
+      - /home/ec2-user/work:/opt
+    ports:
+      - "8080:8080"
+      - "50000:50000"
+      - "8060:8060"
+    depends_on:
+      - splash
