@@ -37,7 +37,7 @@ class PredictCrawlerSpider(scrapy.Spider):
 
         race_list = [self.race_id]
 
-        race_list = [self.base_url + x for x in race_list]
+        race_list = [self.base_url + x + "&rf=race_submenu" for x in race_list]
 
 
         for race_url in race_list:
